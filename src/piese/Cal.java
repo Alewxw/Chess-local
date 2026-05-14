@@ -1,0 +1,55 @@
+package piese;
+
+import java.util.*;
+
+public class Cal extends Piesa{
+
+    public Cal ( String culoare, String tip )
+    {
+        super(culoare, tip);
+    }
+
+    public Cal ( String culoare, String tip, int rand, int coloana )
+    {
+        super(culoare, tip, rand, coloana);
+    }
+
+    public List<int[]> getMutariValid (Piesa[][] tabla )
+    {
+        List<int[]> mutari = new ArrayList<>();
+        int dir[][] = { {1, 2}, {2,1 }, {1, -2}, {2, -1}, {-1, 2}, {-2, 1}, {-1, -2}, {-2, -1}};
+
+        for ( int d[] : dir )
+        {
+            int r = getRand() + d[0];
+            int c = getColoana() + d[1];
+
+            if ( r >= 0 && r < 8 && c >= 0 && c < 8 )
+            {
+                if  ( tabla[r][c] == null )
+                {
+                    mutari.add( new int[] {r, c} );
+                }
+                else
+                {
+                    if ( !tabla[r][c].getCuloare().equals(getCuloare()) )
+                    {
+                        mutari.add( new int[] {r, c} );
+                    }
+
+
+                }
+            }
+        }
+
+        return mutari;
+    }
+
+    public boolean esteValidaMutarea ( int rand, int coloana )
+    {
+        int dr = Math.abs(rand - getRand());
+        int dc = Math.abs(coloana - getColoana());
+
+        return (dr == 2 && dc == 1) || (dr == 1 && dc == 2);
+    }
+}
