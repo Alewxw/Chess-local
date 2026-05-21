@@ -1,17 +1,25 @@
 package ui;
 
+import dp.PiesaFactory;
 import exceptions.JocTerminatException;
+import exceptions.PromovareException;
 import game.Joc;
+import game.Jucator;
+import game.Tabla;
+import moves.Mutare;
+import piese.Piesa;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 
 public class TablaPanel extends JPanel {
     private Joc joc;
     private static final int DIM_CASUTA = 80;
+    private javax.swing.Timer swingTimer;
 
     private int randSelectat = -1;
     private int colSelectat = -1;
@@ -38,12 +46,76 @@ public class TablaPanel extends JPanel {
 
         JFrame frame = new JFrame("Sah");
 
-        setPreferredSize(new Dimension(DIM_CASUTA * 8, DIM_CASUTA * 8));
+        setPreferredSize(new Dimension(DIM_CASUTA * 8, DIM_CASUTA * 8 + 50));
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu meniu = new JMenu("Optiuni");
+        JMenuItem salveaza = new JMenuItem("Salveaza joc");
+        JMenuItem istoric = new JMenuItem("Istoric joc");
+
+        meniu.add(salveaza);
+        meniu.add(istoric);
+        menuBar.add(meniu);
+        frame.setJMenuBar(menuBar);
+
         frame.add(this);
         frame.pack();
         frame.setResizable(false);
         frame.setLocationRelativeTo(parinte);
         frame.setVisible(true);
+
+        swingTimer = new javax.swing.Timer(1000, e -> {
+            Jucator curent = joc.getJucatorCurent();
+            game.Timer t = curent.getTimer();
+
+            if (t.getTimpRamas() > 0) {
+                t.setTimpRamas(t.getTimpRamas() - 1);
+            } else {
+
+                joc.esteJocTerminat();
+                swingTimer.stop();
+                JOptionPane.showMessageDialog(null, curent.getNume() + " a pierdut la timp!");
+            }
+            repaint();
+        });
+        swingTimer.start();
+
+        istoric.addActionListener( e-> {
+            swingTimer.stop();
+
+            JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            JScrollPane scrollPane = new JScrollPane(textArea);
+
+            List<Mutare> mutari = joc.getTabla().getIstoricMutari();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < mutari.size(); i++)
+            {
+                Mutare m = mutari.get(i);
+                sb.append((i+1) + ". " + m.getPiesa().getTip() + " " + m.getRandStart() + "," + m.getColStart() + " -> " + m.getRandFinal() + "," + m.getColFinal() + "\n");
+            }
+
+            textArea.setText(sb.toString());
+
+            JOptionPane.showMessageDialog(frame, scrollPane, "Istoric", JOptionPane.PLAIN_MESSAGE);
+            swingTimer.start();
+        });
+
+        salveaza.addActionListener(e -> {
+           JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+
+            if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                String cale = fileChooser.getSelectedFile().getAbsolutePath();
+
+                if ( !cale.endsWith(".txt") ) cale += ".txt";
+                joc.salveaza(cale);
+
+
+            }
+        });
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -69,16 +141,48 @@ public class TablaPanel extends JPanel {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Joc terminat", JOptionPane.INFORMATION_MESSAGE);
                         repaint();
                     }
+                    catch (PromovareException ex) {
+                        JPopupMenu popup = new JPopupMenu();
+                        String[] simboluri = {"♕", "♖", "♗", "♘"};
+                        String[] tipuri = {"Regina", "Tura", "Nebun", "Cal"};
+
+                        String culoare = joc.getTabla().getPiesa(rand, col).getCuloare();
+
+                        for ( int i = 0; i < tipuri.length; i++ ) {
+                            final String tip = tipuri[i];
+                            final String simbol = simboluri[i];
+
+                            JButton btn = new JButton(simbol);
+                            btn.setFont(new Font("Serif", Font.PLAIN, 40));
+
+                            btn.addActionListener(ev -> {
+                                Piesa noua = PiesaFactory.creeazaPiesa(tip, culoare, rand, col);
+                                joc.getTabla().setPiesa(rand, col, noua);
+                                randSelectat = -1;
+                                colSelectat = -1;
+                                popup.setVisible(false);
+                                repaint();
+                            });
+                            popup.add(btn);
+                        }
+
+                        popup.show(TablaPanel.this, col * DIM_CASUTA, rand * DIM_CASUTA);
+                    }
                     catch (Exception ex) {
                         randSelectat = -1;
                         colSelectat = -1;
                         repaint();
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
+
                 }
 
             }
         });
+    }
+
+    private String formatTimp(int secunde) {
+        return secunde / 60 + ":" + String.format("%02d", secunde % 60);
     }
 
     @Override
@@ -113,5 +217,9 @@ public class TablaPanel extends JPanel {
                 }
             }
 
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.setColor(Color.BLACK);
+        g.drawString(joc.getJucator1().getNume() + ": " + formatTimp(joc.getJucator1().getTimer().getTimpRamas()), 10, DIM_CASUTA * 8 + 20);
+        g.drawString(joc.getJucator2().getNume() + ": " + formatTimp(joc.getJucator2().getTimer().getTimpRamas()), 10, DIM_CASUTA * 8 + 40);
     }
 }

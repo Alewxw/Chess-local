@@ -7,6 +7,7 @@ import java.util.*;
 public abstract class Piesa implements Miscabil {
     private String culoare;
     private String tip;
+    private boolean aMutat = false;
 
     private int rand;
     private int coloana;
@@ -54,5 +55,13 @@ public abstract class Piesa implements Miscabil {
 
     public void setColoana(int coloana) {
         this.coloana = coloana;
+    }
+
+    public boolean isaMutat() {
+        return aMutat;
+    }
+
+    public void setaMutat(boolean aMutat) {
+        this.aMutat = aMutat;
     }
 }

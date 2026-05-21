@@ -28,6 +28,9 @@ public class Rege extends Piesa{
                 mutari.add(new int[]{r, c});
             }
         }
+
+
+
         return mutari;
     }
 

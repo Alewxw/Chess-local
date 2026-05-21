@@ -59,6 +59,11 @@ public class JocNou {
            Joc joc = new Joc(tabla, strategie, j1, j2);
 
             joc.initTabla();
+
+            int timp = strategie.getTimpJucator() * 60;
+            j1.setTimer(new game.Timer(timp, false));
+            j2.setTimer(new game.Timer(timp, false));
+
             jd.dispose();
             new TablaPanel(joc, parinte);
         });

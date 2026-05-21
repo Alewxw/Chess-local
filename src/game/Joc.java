@@ -4,6 +4,7 @@ import dp.PiesaFactory;
 import dp.StrategieJoc;
 import exceptions.JocTerminatException;
 import exceptions.MutareInvalidaException;
+import exceptions.PromovareException;
 import exceptions.RegeSahException;
 import interfata.Salvabil;
 import moves.Mutare;
@@ -62,7 +63,6 @@ public class Joc implements Salvabil {
         if (!piesa.getCuloare().equals(jucatorCurent.getCuloare()))
             throw new MutareInvalidaException("Nu poti muta aia");
 
-        // acum verifici mutarile valide
         List<int[]> mutariValide = piesa.getMutariValid(tabla.getTabla());
 
         boolean gasit = false;
@@ -86,6 +86,7 @@ public class Joc implements Salvabil {
 
         piesa.setRand(randFinal);
         piesa.setColoana(colFinal);
+        piesa.setaMutat(true);
 
         if ( esteSah(piesa.getCuloare()) )
         {
@@ -94,6 +95,7 @@ public class Joc implements Salvabil {
 
             piesa.setRand(randStart);
             piesa.setColoana(colStart);
+            piesa.setaMutat(false);
 
             throw new MutareInvalidaException("Mutarea te pune in sah");
         }
@@ -101,6 +103,11 @@ public class Joc implements Salvabil {
         tabla.adaugaMutare(new Mutare(randStart, colStart, randFinal, colFinal, piesa));
 
         jucatorCurent = (jucatorCurent == jucator1) ? jucator2 : jucator1;
+
+        if ( tabla.getPiesa(randFinal, colFinal).getTip().equals("Pion") && (randFinal == 0 || randFinal == 7) )
+        {
+            throw new PromovareException("Ai reusit sa promovezi un pion!");
+        }
 
         if ( esteSah(jucatorCurent.getCuloare()) )
         {
