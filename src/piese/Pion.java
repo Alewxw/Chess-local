@@ -2,6 +2,7 @@ package piese;
 
 import java.util.ArrayList;
 import java.util.List;
+import game.Joc;
 
 public class Pion extends Piesa{
 

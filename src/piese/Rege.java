@@ -29,6 +29,16 @@ public class Rege extends Piesa{
             }
         }
 
+        if ( !isaMutat() && tabla[getRand()][5] == null  && tabla[getRand()][6] == null && tabla[getRand()][7] != null && tabla[getRand()][7].getTip().equals("Tura") && !tabla[getRand()][7].isaMutat() )
+        {
+                mutari.add(new int[]{getRand(), 6});
+        }
+
+        if ( !isaMutat() && tabla[getRand()][1] == null  && tabla[getRand()][2] == null && tabla[getRand()][3] == null && tabla[getRand()][0] != null && tabla[getRand()][0].getTip().equals("Tura") && !tabla[getRand()][0].isaMutat() )
+        {
+                mutari.add(new int[]{getRand(), 2});
+        }
+
 
 
         return mutari;

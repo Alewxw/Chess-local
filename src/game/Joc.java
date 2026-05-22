@@ -19,6 +19,9 @@ public class Joc implements Salvabil {
     StrategieJoc strategie;
     Jucator jucatorCurent;
 
+    private int enPassantCol = -1;
+    private int enPassantRand = -1;
+
     boolean jocActiv;
 
     public Joc ( Tabla tabla, StrategieJoc strategie, Jucator jucator1, Jucator jucator2 )
@@ -76,7 +79,15 @@ public class Joc implements Salvabil {
             }
         }
 
-        if ( !gasit )
+        boolean esteEnPassant = false;
+
+        if (piesa.getTip().equals("Pion") && colFinal == enPassantCol &&
+                randStart == enPassantRand && Math.abs(colFinal - colStart) == 1) {
+            esteEnPassant = true;
+            gasit = true;
+        }
+
+        if (!gasit)
             throw new MutareInvalidaException("Nu poti muta acolo");
 
         Piesa dest = tabla.getPiesa(randFinal, colFinal);
@@ -87,6 +98,36 @@ public class Joc implements Salvabil {
         piesa.setRand(randFinal);
         piesa.setColoana(colFinal);
         piesa.setaMutat(true);
+
+        if (esteEnPassant) {
+            tabla.setPiesa(enPassantRand, enPassantCol, null);
+        }
+
+        if (piesa.getTip().equals("Pion") && Math.abs(randFinal - randStart) == 2) {
+            enPassantCol = colFinal;
+            enPassantRand = randFinal;
+        } else {
+            enPassantCol = -1;
+            enPassantRand = -1;
+        }
+
+        if (piesa.getTip().equals("Rege") && Math.abs(colFinal - colStart) == 2) {
+            if (colFinal == 6) {
+                Piesa tura = tabla.getPiesa(randStart, 7);
+                tabla.setPiesa(randStart, 5, tura);
+                tabla.setPiesa(randStart, 7, null);
+                tura.setColoana(5);
+                tura.setaMutat(true);
+
+            }
+            else {
+                Piesa tura = tabla.getPiesa(randStart, 0);
+                tabla.setPiesa(randStart, 3, tura);
+                tabla.setPiesa(randStart, 0, null);
+                tura.setColoana(3);
+                tura.setaMutat(true);
+            }
+        }
 
         if ( esteSah(piesa.getCuloare()) )
         {

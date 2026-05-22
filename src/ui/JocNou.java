@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class JocNou {
-    JDialog jd = new JDialog();
+    JDialog jd;
 
     JTextField nume1 = new JTextField();
     JTextField nume2 = new JTextField();
@@ -20,26 +20,47 @@ public class JocNou {
 
     public JocNou(JFrame parinte)
     {
+        jd = new JDialog(parinte, "Joc Nou", true);
         jd.setSize(300, 300);
         jd.setResizable(false);
-        jd.setLayout(new GridLayout(4, 2));
-
         jd.setLocationRelativeTo(parinte);
 
-        jd.add(new JLabel("Jucator 1:"));
+
+        jd.getContentPane().setBackground(new Color(30, 30, 30));
+        jd.setLayout(new GridLayout(4, 2, 10, 10));
+
+        JLabel label1 = new JLabel("Jucator 1:");
+        label1.setForeground(Color.WHITE);
+        JLabel label2 = new JLabel("Jucator 2:");
+        label2.setForeground(Color.WHITE);
+        JLabel label3 = new JLabel("Tip joc:");
+        label3.setForeground(Color.WHITE);
+
+        nume1.setBackground(new Color(50, 50, 50));
+        nume1.setForeground(Color.WHITE);
+        nume2.setBackground(new Color(50, 50, 50));
+        nume2.setForeground(Color.WHITE);
+
+        start.setBackground(new Color(70, 130, 80));
+        start.setForeground(Color.WHITE);
+        start.setFocusPainted(false);
+        start.setBorderPainted(false);
+        start.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        jd.add(label1);
         jd.add(nume1);
-
-        jd.add(new JLabel("Jucator 2:"));
+        jd.add(label2);
         jd.add(nume2);
-
-        jd.add(new JLabel("Tip joc:"));
+        jd.add(label3);
         jd.add(alegere);
-
         jd.add(new JLabel());
         jd.add(start);
 
         alegere.addItem("Rapid");
         alegere.addItem("Clasic");
+
+        alegere.setBackground(new Color(50, 50, 50));
+        alegere.setForeground(Color.WHITE);
 
         start.addActionListener(e -> {
            String num1 = nume1.getText();
