@@ -29,17 +29,32 @@ public class Rege extends Piesa{
             }
         }
 
-        if ( !isaMutat() && tabla[getRand()][5] == null  && tabla[getRand()][6] == null && tabla[getRand()][7] != null && tabla[getRand()][7].getTip().equals("Tura") && !tabla[getRand()][7].isaMutat() )
+        if (!isaMutat()
+                && tabla[getRand()][5] == null
+                && tabla[getRand()][6] == null
+                && tabla[getRand()][7] != null
+                && tabla[getRand()][7].getTip().equals("Tura")
+                && !tabla[getRand()][7].isaMutat()
+                && !estePatratAtacat(tabla, getRand(), getColoana())
+                && !estePatratAtacat(tabla, getRand(), 5)
+                && !estePatratAtacat(tabla, getRand(), 6))
         {
-                mutari.add(new int[]{getRand(), 6});
+            mutari.add(new int[]{getRand(), 6});
         }
 
-        if ( !isaMutat() && tabla[getRand()][1] == null  && tabla[getRand()][2] == null && tabla[getRand()][3] == null && tabla[getRand()][0] != null && tabla[getRand()][0].getTip().equals("Tura") && !tabla[getRand()][0].isaMutat() )
+        if (!isaMutat()
+                && tabla[getRand()][1] == null
+                && tabla[getRand()][2] == null
+                && tabla[getRand()][3] == null
+                && tabla[getRand()][0] != null
+                && tabla[getRand()][0].getTip().equals("Tura")
+                && !tabla[getRand()][0].isaMutat()
+                && !estePatratAtacat(tabla, getRand(), getColoana())
+                && !estePatratAtacat(tabla, getRand(), 3)
+                && !estePatratAtacat(tabla, getRand(), 2))
         {
-                mutari.add(new int[]{getRand(), 2});
+            mutari.add(new int[]{getRand(), 2});
         }
-
-
 
         return mutari;
     }
@@ -48,5 +63,21 @@ public class Rege extends Piesa{
     public  boolean esteValidaMutarea ( int rand, int coloana )
     {
         return Math.abs(rand - getRand()) <= 1 && Math.abs(coloana - getColoana()) <= 1;
+    }
+
+    private boolean estePatratAtacat(Piesa[][] tabla, int rand, int col) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piesa p = tabla[i][j];
+                if (p != null && !p.getCuloare().equals(getCuloare()) && !p.getTip().equals("Rege")) {
+                    for (int[] mutare : p.getMutariValid(tabla)) {
+                        if (mutare[0] == rand && mutare[1] == col) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

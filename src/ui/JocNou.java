@@ -86,7 +86,7 @@ public class JocNou {
             j2.setTimer(new game.Timer(timp, false));
 
             jd.dispose();
-            new TablaPanel(joc, parinte);
+            new TablaPanel(joc, parinte, false);
         });
 
         jd.setVisible(true);

@@ -1,0 +1,250 @@
+@startuml
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+' ===== PACKAGE interfata =====
+package interfata {
+    interface Miscabil {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    interface Salvabil {
+        + salveaza(numeFisier: String): void
+        + incarca(numeFisier: String): void
+    }
+}
+
+' ===== PACKAGE piese =====
+package piese {
+    abstract class Piesa implements Miscabil {
+        - culoare: String
+        - tip: String
+        - rand: int
+        - coloana: int
+        - aMutat: boolean
+        + getCuloare(): String
+        + getTip(): String
+        + getRand(): int
+        + getColoana(): int
+        + isaMutat(): boolean
+        + setRand(rand: int): void
+        + setColoana(coloana: int): void
+        + setaMutat(aMutat: boolean): void
+    }
+
+    class Rege extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    class Regina extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    class Tura extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    class Nebun extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    class Cal extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+
+    class Pion extends Piesa {
+        + getMutariValid(tabla: Piesa[][]): List<int[]>
+        + esteValidaMutarea(rand: int, coloana: int): boolean
+    }
+}
+
+' ===== PACKAGE exceptions =====
+package exceptions {
+    class MutareInvalidaException extends RuntimeException {
+        + MutareInvalidaException(message: String)
+    }
+
+    class RegeSahException extends RuntimeException {
+        + RegeSahException(message: String)
+    }
+
+    class JocTerminatException extends RuntimeException {
+        + JocTerminatException(message: String)
+    }
+
+    class PozitieInvalidaException extends RuntimeException {
+        + PozitieInvalidaException(message: String)
+    }
+
+    class PromovareException extends RuntimeException {
+        + PromovareException(message: String)
+    }
+}
+
+' ===== PACKAGE moves =====
+package moves {
+    class Mutare {
+        - randStart: int
+        - colStart: int
+        - randFinal: int
+        - colFinal: int
+        - piesa: Piesa
+        + getRandStart(): int
+        + getColStart(): int
+        + getRandFinal(): int
+        + getColFinal(): int
+        + getPiesa(): Piesa
+    }
+}
+
+' ===== PACKAGE dp =====
+package dp {
+    interface StrategieJoc {
+        + getTimpJucator(): int
+        + getNumeStrategie(): String
+        + esteJocTerminat(j1: Jucator, j2: Jucator): boolean
+    }
+
+    class StrategieRapid implements StrategieJoc {
+        + getTimpJucator(): int
+        + getNumeStrategie(): String
+        + esteJocTerminat(j1: Jucator, j2: Jucator): boolean
+    }
+
+    class StrategieClasic implements StrategieJoc {
+        + getTimpJucator(): int
+        + getNumeStrategie(): String
+        + esteJocTerminat(j1: Jucator, j2: Jucator): boolean
+    }
+
+    class PiesaFactory {
+        + {static} creeazaPiesa(tip: String, culoare: String, rand: int, coloana: int): Piesa
+    }
+
+    class IteratorMutari implements Iterator {
+        - mutari: List<Mutare>
+        - index: int
+        + hasNext(): boolean
+        + next(): Mutare
+        + remove(): void
+    }
+}
+
+' ===== PACKAGE game =====
+package game {
+    abstract class TipJoc {
+        - durata: int
+        - numeJoc: String
+        + {abstract} getReguli(): String
+        + getDurata(): int
+        + getNumeJoc(): String
+    }
+
+    class JocRapid extends TipJoc {
+        + getReguli(): String
+    }
+
+    class JocClasic extends TipJoc {
+        + getReguli(): String
+    }
+
+    class Timer {
+        - timpRamas: int
+        - activ: boolean
+        + start(): void
+        + stop(): void
+        + reset(): void
+        + getTimpRamas(): int
+        + setTimpRamas(timp: int): void
+    }
+
+    class Jucator {
+        - nume: String
+        - culoare: String
+        - timer: Timer
+        - scorTotal: int
+        + getNume(): String
+        + getCuloare(): String
+        + getTimer(): Timer
+        + setTimer(timer: Timer): void
+    }
+
+    class Tabla {
+        - tabla: Piesa[][]
+        - istoricMutari: List<Mutare>
+        + getPiesa(rand: int, coloana: int): Piesa
+        + setPiesa(rand: int, coloana: int, piesa: Piesa): void
+        + adaugaMutare(mutare: Mutare): void
+        + getIstoricMutari(): List<Mutare>
+        + getTabla(): Piesa[][]
+    }
+
+    class Joc implements Salvabil {
+        - tabla: Tabla
+        - jucator1: Jucator
+        - jucator2: Jucator
+        - strategie: StrategieJoc
+        - jucatorCurent: Jucator
+        - jocActiv: boolean
+        - enPassantCol: int
+        - enPassantRand: int
+        + initTabla(): void
+        + executaMutare(rS: int, cS: int, rF: int, cF: int): void
+        + esteSah(culoare: String): boolean
+        + areMutariLegale(culoare: String): boolean
+        + esteJocTerminat(): void
+        + salveaza(numeFisier: String): void
+        + incarca(numeFisier: String): void
+    }
+}
+
+' ===== PACKAGE ui =====
+package ui {
+    class MainMenu {
+        - frame: JFrame
+        + MainMenu()
+        - creeazaButon(text: String): JButton
+    }
+
+    class JocNou {
+        - jd: JDialog
+        - nume1: JTextField
+        - nume2: JTextField
+        - alegere: JComboBox
+        + JocNou(parinte: JFrame)
+    }
+
+    class TablaPanel extends JPanel {
+        - joc: Joc
+        - DIM_CASUTA: int
+        - swingTimer: Timer
+        - randSelectat: int
+        - colSelectat: int
+        + TablaPanel(joc: Joc, parinte: JFrame)
+        # paintComponent(g: Graphics): void
+        - formatTimp(secunde: int): String
+    }
+}
+
+' ===== RELATII =====
+Joc --> Tabla
+Joc --> Jucator
+Joc --> StrategieJoc
+Jucator --> Timer
+Tabla --> Mutare
+Mutare --> Piesa
+PiesaFactory --> Piesa
+IteratorMutari --> Mutare
+TablaPanel --> Joc
+JocNou --> Joc
+MainMenu --> JocNou
+MainMenu --> TablaPanel
+
+@enduml

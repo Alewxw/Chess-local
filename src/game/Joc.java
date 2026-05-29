@@ -64,7 +64,7 @@ public class Joc implements Salvabil {
             throw new MutareInvalidaException("Nu e o piesa acolo");
 
         if (!piesa.getCuloare().equals(jucatorCurent.getCuloare()))
-            throw new MutareInvalidaException("Nu poti muta aia");
+            throw new MutareInvalidaException("Piesa nu apartine jucatorului curent");
 
         List<int[]> mutariValide = piesa.getMutariValid(tabla.getTabla());
 
@@ -88,9 +88,10 @@ public class Joc implements Salvabil {
         }
 
         if (!gasit)
-            throw new MutareInvalidaException("Nu poti muta acolo");
+            throw new MutareInvalidaException("Mutarea nu este valida pentru aceasta piesa");
 
         Piesa dest = tabla.getPiesa(randFinal, colFinal);
+        boolean aMutatOriginal = piesa.isaMutat();
 
         tabla.setPiesa(randFinal, colFinal, piesa);
         tabla.setPiesa(randStart, colStart, null);
@@ -136,7 +137,23 @@ public class Joc implements Salvabil {
 
             piesa.setRand(randStart);
             piesa.setColoana(colStart);
-            piesa.setaMutat(false);
+            piesa.setaMutat(aMutatOriginal);
+
+            if (piesa.getTip().equals("Rege") && Math.abs(colFinal - colStart) == 2) {
+                if (colFinal == 6) {
+                    Piesa tura = tabla.getPiesa(randStart, 5);
+                    tabla.setPiesa(randStart, 7, tura);
+                    tabla.setPiesa(randStart, 5, null);
+                    tura.setColoana(7);
+                    tura.setaMutat(false);
+                } else {
+                    Piesa tura = tabla.getPiesa(randStart, 3);
+                    tabla.setPiesa(randStart, 0, tura);
+                    tabla.setPiesa(randStart, 3, null);
+                    tura.setColoana(0);
+                    tura.setaMutat(false);
+                }
+            }
 
             throw new MutareInvalidaException("Mutarea te pune in sah");
         }
@@ -261,6 +278,10 @@ public class Joc implements Salvabil {
             }
 
             writer.write("JUCATOR_CURENT:" + jucatorCurent.getCuloare());
+
+            writer.write("EN_PASSANT:" + enPassantCol + "," + enPassantRand);
+            writer.newLine();
+
             writer.close();
 
         } catch (IOException e) {
@@ -288,6 +309,12 @@ public class Joc implements Salvabil {
                    Piesa piesa = PiesaFactory.creeazaPiesa(data[0], data[1],
                            Integer.parseInt(data[2]), Integer.parseInt(data[3]));
                    tabla.setPiesa(Integer.parseInt(data[2]), Integer.parseInt(data[3]), piesa);
+               }
+
+               if (linie.startsWith("EN_PASSANT")) {
+                   String[] vals = linie.split(":")[1].split(",");
+                   enPassantCol = Integer.parseInt(vals[0]);
+                   enPassantRand = Integer.parseInt(vals[1]);
                }
            }
 

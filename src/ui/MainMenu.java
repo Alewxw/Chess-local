@@ -66,7 +66,7 @@ public class MainMenu {
                 joc.incarca(cale);
                 j1.setTimer(new game.Timer(600, false));
                 j2.setTimer(new game.Timer(600, false));
-                new TablaPanel(joc, frame);
+                new TablaPanel(joc, frame, true);
 
 
             }

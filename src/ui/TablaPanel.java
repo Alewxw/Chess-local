@@ -24,6 +24,11 @@ public class TablaPanel extends JPanel {
     private int randSelectat = -1;
     private int colSelectat = -1;
 
+    private boolean modAnaliza = false;
+
+    private int scorCurent = 0;
+    private engine.Minimax minimax = new engine.Minimax(new engine.Evaluator(), 3);
+
     private static final Map<String, String> SIMBOLURI = new HashMap<>();
 
     static {
@@ -41,12 +46,13 @@ public class TablaPanel extends JPanel {
         SIMBOLURI.put("Pion,Negru", "♟");
     }
 
-    public TablaPanel(Joc joc, JFrame parinte) {
+    public TablaPanel(Joc joc, JFrame parinte, boolean modAnaliza) {
         this.joc = joc;
+        this.modAnaliza = modAnaliza;
 
         JFrame frame = new JFrame("Sah");
 
-        setPreferredSize(new Dimension(DIM_CASUTA * 8, DIM_CASUTA * 8 + 50));
+        setPreferredSize(new Dimension(DIM_CASUTA * 8 + 50, DIM_CASUTA * 8 + 50));
 
         JMenuBar menuBar = new JMenuBar();
         JMenu meniu = new JMenu("Optiuni");
@@ -79,6 +85,7 @@ public class TablaPanel extends JPanel {
             repaint();
         });
         swingTimer.start();
+        recalculeazaScor();
 
         istoric.addActionListener( e-> {
             swingTimer.stop();
@@ -100,6 +107,7 @@ public class TablaPanel extends JPanel {
 
             JOptionPane.showMessageDialog(frame, scrollPane, "Istoric", JOptionPane.PLAIN_MESSAGE);
             swingTimer.start();
+
         });
 
         salveaza.addActionListener(e -> {
@@ -135,7 +143,8 @@ public class TablaPanel extends JPanel {
                         joc.executaMutare(randSelectat, colSelectat, rand, col);
                         randSelectat = -1;
                         colSelectat = -1;
-                        repaint();
+                        recalculeazaScor();
+
                     }
                     catch (JocTerminatException ex) {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Joc terminat", JOptionPane.INFORMATION_MESSAGE);
@@ -217,9 +226,56 @@ public class TablaPanel extends JPanel {
                 }
             }
 
+        if (modAnaliza) {
+            int linie = calculeazaPozitiebara(scorCurent);
+            int x = DIM_CASUTA * 8 + 5;
+            int latime = 40;
+
+            g.setColor(Color.BLACK);
+            g.fillRect(x, 0, latime, linie);
+
+            g.setColor(Color.WHITE);
+            g.fillRect(x, linie, latime, DIM_CASUTA * 8 - linie);
+
+            g.setColor(Color.GRAY);
+            g.drawRect(x, 0, latime, DIM_CASUTA * 8);
+
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.setColor(Color.BLACK);
+            String scorText = scorCurent > 0 ? "+" + (scorCurent / 100.0) : "" + (scorCurent / 100.0);
+            g.drawString(scorText, x + 2, DIM_CASUTA * 8 + 20);
+        }
+
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.setColor(Color.BLACK);
         g.drawString(joc.getJucator1().getNume() + ": " + formatTimp(joc.getJucator1().getTimer().getTimpRamas()), 10, DIM_CASUTA * 8 + 20);
         g.drawString(joc.getJucator2().getNume() + ": " + formatTimp(joc.getJucator2().getTimer().getTimpRamas()), 10, DIM_CASUTA * 8 + 40);
+    }
+
+    private int calculeazaPozitiebara(int scor) {
+
+        scor = Math.max(-1000, Math.min(1000, scor));
+
+        return (int) (320 - (scor / 1000.0) * 320);
+    }
+
+    private void recalculeazaScor() {
+        if (!modAnaliza) return;
+        new SwingWorker<Integer, Void>() {
+            @Override
+            protected Integer doInBackground() {
+                return minimax.getBestScore(joc.getTabla().getTabla());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    scorCurent = get();
+                    repaint();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.execute();
     }
 }
